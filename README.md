@@ -2,6 +2,18 @@
 
 This project demonstrates how to implement a tree structure using a composite pattern in Java, extending an abstract `NodeComponent` class. Below are the steps to set up the entities, repositories, service layer, and configuration required to manage a category hierarchy.
 
+This project constructs with,
+1. **NodeComponent:** `abstract class`
+    - is to serve as the base class for implementing a composite pattern, which is a structural design pattern that allows you to treat individual objects (leaves) and compositions of objects (composites) uniformly.
+2. **HibernateNodeRepository:** `abstract class`
+    - is a repository implementation that provides operations for entities. 
+4. **AbstractNodeFunctions:** `abstract class`
+   -  This class is responsible for handling the construction of composite pattern classes.
+5. **NodeTemplate:** `abstract class`
+   - is a template class that provides a structured way to perform operations on NodeComponent class. It acts as a base class that encapsulates the common functionality required for managing hierarchical data structures.
+6. **TreeBuilder:** `class`
+   - is designed to provide a structured way to construct and manage tree-like hierarchical structures.
+   
 ## 1. Create the Category Entity
 
 First, create a `Category` entity that extends the `NodeComponent` abstract class. The following annotations are required: `@Id`, `@NameColumn`, `@LeftColumn`, `@RightColumn`, and `@DepthColumn`.
