@@ -4,6 +4,8 @@ import com.coolstuff.core.nestedset.model.NodeComponent;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -11,6 +13,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class TreeBuilderImplTest {
+
     @Test
     void reverseTree() {
         NodeComponent root = mock(NodeComponent.class);
