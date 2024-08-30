@@ -23,6 +23,19 @@ public abstract class NodeTemplate<T extends NodeComponent, ID> implements NodeS
         return jpaNodeRepository.save(node);
     }
 
+    @Transactional
+    @Override
+    public T updateNode(ID id, String newName) {
+        T entity = jpaNodeRepository.findById(id).orElseThrow(()-> new RuntimeException("Node is not found"));
+        entity.setName(newName);
+        return jpaNodeRepository.save(entity);
+    }
+
+    @Override
+    public T readNode(ID id) {
+        return jpaNodeRepository.findById(id).orElseThrow(()-> new RuntimeException("Node is not found"));
+    }
+
     @Override
     @Transactional
     public T createNode(String name, ID parentId) {

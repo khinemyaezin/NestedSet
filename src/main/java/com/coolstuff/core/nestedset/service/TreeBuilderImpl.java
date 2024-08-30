@@ -5,14 +5,15 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class TreeBuilderImpl implements TreeBuilder {
     private final NodeComponentFactory nodeComponentFactory;
 
-    public <T extends NodeComponent> NodeComponent buildTree(List<T> nodeList) {
+    public <T extends NodeComponent> Optional<NodeComponent> buildTree(List<T> nodeList) {
         if (nodeList == null || nodeList.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
 
         T root = nodeList.getFirst();
@@ -24,7 +25,7 @@ public class TreeBuilderImpl implements TreeBuilder {
             node.setLft(root.getLft());
             node.setRgt(root.getRgt());
             node.setDepth(root.getDepth());
-            return node;
+            return Optional.of(node);
         } else {
             node = nodeComponentFactory.createCompositeNodeComponent();
             node.setId(root.getId());
@@ -32,7 +33,7 @@ public class TreeBuilderImpl implements TreeBuilder {
             node.setLft(root.getLft());
             node.setRgt(root.getRgt());
             node.setDepth(root.getDepth());
-            return buildTreeRecursive(node, nodeList,0);
+            return Optional.of(buildTreeRecursive(node, nodeList,0));
         }
     }
 

@@ -20,9 +20,7 @@ public abstract class AbstractNodeFunctions<T extends NodeComponent, ID> impleme
         List<T> nodeTreeList = nodeRepository.getNodeTreeList(nodeId);
         if (nodeTreeList.isEmpty()) return Optional.empty();
 
-        NodeComponent compositeNode = this.treeBuilder.buildTree(nodeTreeList);
-
-        return Optional.of(compositeNode);
+        return this.treeBuilder.buildTree(nodeTreeList);
     }
 
     @Override
@@ -31,22 +29,24 @@ public abstract class AbstractNodeFunctions<T extends NodeComponent, ID> impleme
         List<T> nodeTreeList = this.jpaNodeRepository.findAllByOrderByLft();
         if (nodeTreeList.isEmpty()) return Optional.empty();
 
-        NodeComponent compositeNode = this.treeBuilder.buildTree(nodeTreeList);
-        return Optional.of(compositeNode);
+        return this.treeBuilder.buildTree(nodeTreeList);
     }
 
     @Override
     public Optional<NodeComponent> findDescendantsOf(ID nodeID) throws Exception {
         T node = this.jpaNodeRepository.findById(nodeID).orElseThrow(() -> new Exception("Node is not found"));
         List<T> children = this.nodeRepository.findChildren(node.getLft(), node.getRgt());
-        NodeComponent compositeNode = this.treeBuilder.buildTree(children);
-        return Optional.of(compositeNode);
+        return this.treeBuilder.buildTree(children);
     }
     @Override
     public Optional<NodeComponent> findParentOf(ID id) throws Exception {
         List<T> nodeList = this.nodeRepository.findParentOf(id);
-        NodeComponent node = this.treeBuilder.buildTree(nodeList);
-        node = this.treeBuilder.getLeafList(node).getFirst();
-        return Optional.of(node);
+        Optional<NodeComponent> node = this.treeBuilder.buildTree(nodeList);
+        if(node.isPresent()) {
+            NodeComponent parent = this.treeBuilder.getLeafList(node.get()).getFirst();
+            return Optional.of(parent);
+        } else {
+            return Optional.empty();
+        }
     }
 }
