@@ -13,6 +13,8 @@ This project constructs with,
    - is a template class that provides a structured way to perform operations on NodeComponent class. It acts as a base class that encapsulates the common functionality required for managing hierarchical data structures.
 6. **TreeBuilder:** `class`
    - is designed to provide a structured way to construct and manage tree-like hierarchical structures.
+
+![alt text](https://github.com/khinemyaezin/nested-set/blob/main/uml.svg?raw=true)
    
 ## 1. Create the Category Entity
 
