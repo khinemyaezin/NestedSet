@@ -6,6 +6,8 @@ import com.coolstuff.core.nestedset.repository.NodeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 public abstract class NodeTemplate<T extends NodeComponent, ID> implements NodeService<T, ID> {
     private final NodeRepository<T,ID> nodeRepository;
@@ -32,8 +34,8 @@ public abstract class NodeTemplate<T extends NodeComponent, ID> implements NodeS
     }
 
     @Override
-    public T readNode(ID id) {
-        return jpaNodeRepository.findById(id).orElseThrow(()-> new RuntimeException("Node is not found"));
+    public Optional<T> readNode(ID id) {
+        return jpaNodeRepository.findById(id);
     }
 
     @Override

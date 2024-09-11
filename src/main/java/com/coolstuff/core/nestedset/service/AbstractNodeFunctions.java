@@ -5,7 +5,6 @@ import com.coolstuff.core.nestedset.repository.JpaNodeRepository;
 import com.coolstuff.core.nestedset.repository.NodeRepository;
 import lombok.RequiredArgsConstructor;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,37 +15,39 @@ public abstract class AbstractNodeFunctions<T extends NodeComponent, ID> impleme
     private final TreeBuilder treeBuilder;
 
     @Override
-    public Optional<NodeComponent> getImmediateSubordinatesOf(ID nodeId) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public Optional<NodeComponent> getImmediateSubordinatesOf(ID nodeId) {
         List<T> nodeTreeList = nodeRepository.getNodeTreeList(nodeId);
-        if (nodeTreeList.isEmpty()) return Optional.empty();
 
-        return this.treeBuilder.buildTree(nodeTreeList);
+        return Optional.of(nodeTreeList)
+                .filter(list -> !list.isEmpty())
+                .flatMap(this.treeBuilder::buildTree);
     }
 
     @Override
-    public Optional<NodeComponent> getAllNodes() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-
+    public Optional<NodeComponent> getAllNodes() {
         List<T> nodeTreeList = this.jpaNodeRepository.findAllByOrderByLft();
-        if (nodeTreeList.isEmpty()) return Optional.empty();
 
-        return this.treeBuilder.buildTree(nodeTreeList);
+        return Optional.of(nodeTreeList)
+                .filter(list -> !list.isEmpty())
+                .flatMap(this.treeBuilder::buildTree);
     }
 
     @Override
-    public Optional<NodeComponent> findDescendantsOf(ID nodeID) throws Exception {
-        T node = this.jpaNodeRepository.findById(nodeID).orElseThrow(() -> new Exception("Node is not found"));
-        List<T> children = this.nodeRepository.findChildren(node.getLft(), node.getRgt());
-        return this.treeBuilder.buildTree(children);
+    public Optional<NodeComponent> findDescendantsOf(ID nodeID){
+        return this.jpaNodeRepository.findById(nodeID)
+                .map(t -> this.nodeRepository.findChildren(t.getLft(), t.getRgt()))
+                .filter(list -> !list.isEmpty())
+                .flatMap(this.treeBuilder::buildTree);
     }
     @Override
-    public Optional<NodeComponent> findParentOf(ID id) throws Exception {
+    public Optional<NodeComponent> findParentOf(ID id){
         List<T> nodeList = this.nodeRepository.findParentOf(id);
-        Optional<NodeComponent> node = this.treeBuilder.buildTree(nodeList);
-        if(node.isPresent()) {
-            NodeComponent parent = this.treeBuilder.getLeafList(node.get()).getFirst();
-            return Optional.of(parent);
-        } else {
-            return Optional.empty();
-        }
+
+        return Optional.of(nodeList)
+                .filter(list -> !list.isEmpty())
+                .flatMap(this.treeBuilder::buildTree)
+                .map(this.treeBuilder::getLeafList)
+                .filter(list-> !list.isEmpty())
+                .map(List::getFirst);
     }
 }
