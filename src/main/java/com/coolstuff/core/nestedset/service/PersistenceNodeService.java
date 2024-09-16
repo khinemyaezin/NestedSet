@@ -2,17 +2,16 @@ package com.coolstuff.core.nestedset.service;
 
 import com.coolstuff.core.nestedset.model.NodeComponent;
 
-import java.util.List;
 import java.util.Optional;
 
-public interface NodeService<T extends NodeComponent,ID> {
-    T createNode(String name);
+public interface PersistenceNodeService<T extends NodeComponent,ID> {
+    T createNode(T entity);
 
-    T createNode(String name, ID parentId);
+    T createNode(T entity, ID parentId);
 
     Optional<T> readNode(ID id);
 
-    T updateNode(ID id, String newName);
+    T updateNode(ID id, T entity);
 
     void deleteNode(ID id);
 

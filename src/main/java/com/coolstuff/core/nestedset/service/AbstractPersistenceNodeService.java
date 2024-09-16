@@ -9,27 +9,29 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-public abstract class NodeTemplate<T extends NodeComponent, ID> implements NodeService<T, ID> {
-    private final NodeRepository<T,ID> nodeRepository;
+public abstract class AbstractPersistenceNodeService<T extends NodeComponent, ID> implements PersistenceNodeService<T, ID> {
     private final JpaNodeRepository<T, ID> jpaNodeRepository;
 
     @Override
     @Transactional
-    public T createNode(String name) {
-        Integer right = nodeRepository.findMaxRight();
+    public T createNode(T entity) {
+        Integer right = jpaNodeRepository.findMaxRight();
         if (right == null) {
             right = 0;
         }
         right++;
-        T node = this.buildNodeEntity(name, right, right + 1, 0);
-        return jpaNodeRepository.save(node);
+
+        entity.setLft(right);
+        entity.setRgt(right + 1);
+        entity.setDepth(0);
+
+        return jpaNodeRepository.save(entity);
     }
 
     @Transactional
     @Override
-    public T updateNode(ID id, String newName) {
-        T entity = jpaNodeRepository.findById(id).orElseThrow(()-> new RuntimeException("Node is not found"));
-        entity.setName(newName);
+    public T updateNode(ID id, T entity) {
+        entity = jpaNodeRepository.findById(id).orElseThrow(() -> new RuntimeException("Node is not found"));
         return jpaNodeRepository.save(entity);
     }
 
@@ -40,15 +42,18 @@ public abstract class NodeTemplate<T extends NodeComponent, ID> implements NodeS
 
     @Override
     @Transactional
-    public T createNode(String name, ID parentId) {
+    public T createNode(T entity, ID parentId) {
         T rootNode = jpaNodeRepository.findById(parentId).orElseThrow(() -> new RuntimeException("Parent not found"));
         Integer right = rootNode.getRgt();
 
-        nodeRepository.incrementLeftBoundaryAfter(right);
-        nodeRepository.incrementRightBoundaryAfter(right);
+        jpaNodeRepository.incrementLeftBoundaryAfter(right);
+        jpaNodeRepository.incrementRightBoundaryAfter(right);
 
-        T node = this.buildNodeEntity(name, right, right + 1, rootNode.getDepth() + 1);
-        return jpaNodeRepository.save(node);
+        entity.setLft(right);
+        entity.setRgt(right + 1);
+        entity.setDepth(rootNode.getDepth() + 1);
+
+        return jpaNodeRepository.save(entity);
     }
 
     @Override
@@ -59,14 +64,9 @@ public abstract class NodeTemplate<T extends NodeComponent, ID> implements NodeS
         Integer right = category.getRgt();
         Integer width = right - left + 1;
 
-        nodeRepository.deleteNodesInRange(left, right);
+        jpaNodeRepository.deleteNodesInRange(left, right);
 
-        nodeRepository.decrementRightBoundaryAfter(right, width);
-        nodeRepository.decrementLeftBoundaryAfter(right, width);
+        jpaNodeRepository.decrementRightBoundaryAfter(right, width);
+        jpaNodeRepository.decrementLeftBoundaryAfter(right, width);
     }
-
-    public abstract T buildNodeEntity(String name, Integer lft, Integer rgt, Integer depth);
-
-    public abstract T buildNodeEntity(Long id, String name, Integer lft, Integer rgt, Integer depth);
-
 }

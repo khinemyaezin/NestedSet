@@ -18,12 +18,12 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 @Getter
-public abstract class HibernateNodeRepository<T extends NodeComponent, ID> implements NodeRepository<T, ID> {
+public abstract class AbstractNodeRepository<T extends NodeComponent, ID> implements NodeRepository<T, ID> {
     private final Class<T> entityClassType;
     private final EntityManager entityManager;
     private final NodeField configs;
 
-    public HibernateNodeRepository(Class<T> entityClassType, EntityManager entityManager) {
+    public AbstractNodeRepository(Class<T> entityClassType, EntityManager entityManager) {
         this.entityClassType = entityClassType;
         this.entityManager = entityManager;
         configs = getConfig(entityClassType);
@@ -175,7 +175,7 @@ public abstract class HibernateNodeRepository<T extends NodeComponent, ID> imple
      * This can be easily accomplished by adding a HAVING clause to our previous query:
      */
     @Override
-    public List<T> getNodeTreeList(ID nodeId) {
+    public List<T> findImmediateChildren(ID nodeId) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<T> query = cb.createQuery(entityClassType);
 

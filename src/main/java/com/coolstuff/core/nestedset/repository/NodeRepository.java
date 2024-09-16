@@ -19,7 +19,7 @@ public interface NodeRepository<T extends NodeComponent,ID> {
 
     void deleteNodesInRange(Integer left, Integer right);
 
-    List<T> getNodeTreeList(ID nodeId);
+    List<T> findImmediateChildren(ID nodeId);
 
     List<T> findParentOf(ID id);
 }

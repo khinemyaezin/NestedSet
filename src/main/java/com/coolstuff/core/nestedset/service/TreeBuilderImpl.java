@@ -11,12 +11,12 @@ import java.util.Optional;
 public class TreeBuilderImpl implements TreeBuilder {
     private final NodeComponentFactory nodeComponentFactory;
 
-    public <T extends NodeComponent> Optional<NodeComponent> buildTree(List<T> nodeList) {
+    public Optional<NodeComponent> buildTree(List<NodeComponent> nodeList) {
         if (nodeList == null || nodeList.isEmpty()) {
             return Optional.empty();
         }
 
-        T root = nodeList.getFirst();
+        NodeComponent root = nodeList.getFirst();
         NodeComponent node;
         if (root.getRgt() == root.getLft() + 1) {
             node = nodeComponentFactory.createLeafNodeComponent();
@@ -37,10 +37,10 @@ public class TreeBuilderImpl implements TreeBuilder {
         }
     }
 
-    private <T extends NodeComponent> NodeComponent buildTreeRecursive(NodeComponent parent, List<T> nodeList, int index) {
+    private NodeComponent buildTreeRecursive(NodeComponent parent, List<NodeComponent> nodeList, int index) {
         int i = index + 1;
         while (i < nodeList.size() && nodeList.get(i).getLft() < parent.getRgt()) {
-            T child = nodeList.get(i);
+            NodeComponent child = nodeList.get(i);
             if (child.getDepth() == parent.getDepth() + 1) {
                 NodeComponent node;
                 if (child.getRgt() == child.getLft() + 1) {

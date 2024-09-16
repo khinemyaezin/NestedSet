@@ -7,6 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TreeBuilder {
-    <T extends NodeComponent> Optional<NodeComponent> buildTree(List<T> nodeList );
-    <T extends NodeComponent> List<NodeComponent> getLeafList(T node);
+    Optional<NodeComponent> buildTree(List<NodeComponent> nodeList );
+    List<NodeComponent> getLeafList(NodeComponent node);
 }
