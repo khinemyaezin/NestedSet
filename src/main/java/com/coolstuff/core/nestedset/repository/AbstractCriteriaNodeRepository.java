@@ -18,12 +18,12 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 @Getter
-public abstract class AbstractNodeRepository<T extends NodeComponent, ID> implements NodeRepository<T, ID> {
+public abstract class AbstractCriteriaNodeRepository<T extends NodeComponent, ID> implements NodeRepository<T, ID> {
     private final Class<T> entityClassType;
     private final EntityManager entityManager;
     private final NodeField configs;
 
-    public AbstractNodeRepository(Class<T> entityClassType, EntityManager entityManager) {
+    public AbstractCriteriaNodeRepository(Class<T> entityClassType, EntityManager entityManager) {
         this.entityClassType = entityClassType;
         this.entityManager = entityManager;
         configs = getConfig(entityClassType);
@@ -69,20 +69,6 @@ public abstract class AbstractNodeRepository<T extends NodeComponent, ID> implem
         } else {
             return highestRows.getFirst().getRgt();
         }
-    }
-
-    @Override
-    public List<T> findChildren(Integer left, Integer right) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<T> cq = cb.createQuery(entityClassType);
-        Root<T> root = cq.from(entityClassType);
-
-        Predicate leftPredicate = cb.greaterThanOrEqualTo(root.get(configs.getLeftFieldName()), left);
-        Predicate rightPredicate = cb.lessThanOrEqualTo(root.get(configs.getRightFieldName()), right);
-        cq.where(cb.and(leftPredicate, rightPredicate))
-                .orderBy(cb.asc(root.get(configs.getLeftFieldName())));
-
-        return executeQuery(cq);
     }
 
     @Override
@@ -162,6 +148,20 @@ public abstract class AbstractNodeRepository<T extends NodeComponent, ID> implem
                 )
         );
         entityManager.createQuery(query).executeUpdate();
+    }
+
+    @Override
+    public List<T> findChildren(Integer left, Integer right) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<T> cq = cb.createQuery(entityClassType);
+        Root<T> root = cq.from(entityClassType);
+
+        Predicate leftPredicate = cb.greaterThanOrEqualTo(root.get(configs.getLeftFieldName()), left);
+        Predicate rightPredicate = cb.lessThanOrEqualTo(root.get(configs.getRightFieldName()), right);
+        cq.where(cb.and(leftPredicate, rightPredicate))
+                .orderBy(cb.asc(root.get(configs.getLeftFieldName())));
+
+        return executeQuery(cq);
     }
 
     /**

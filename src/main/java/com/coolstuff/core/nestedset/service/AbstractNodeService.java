@@ -2,14 +2,14 @@ package com.coolstuff.core.nestedset.service;
 
 import com.coolstuff.core.nestedset.model.NodeComponent;
 import com.coolstuff.core.nestedset.repository.JpaNodeRepository;
-import com.coolstuff.core.nestedset.repository.NodeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-public abstract class AbstractPersistenceNodeService<T extends NodeComponent, ID> implements PersistenceNodeService<T, ID> {
+public abstract class AbstractNodeService<T extends NodeComponent, ID> implements NodeService<T, ID> {
     private final JpaNodeRepository<T, ID> jpaNodeRepository;
 
     @Override
@@ -68,5 +68,15 @@ public abstract class AbstractPersistenceNodeService<T extends NodeComponent, ID
 
         jpaNodeRepository.decrementRightBoundaryAfter(right, width);
         jpaNodeRepository.decrementLeftBoundaryAfter(right, width);
+    }
+
+    @Override
+    public List<T> findImmediateChildren(ID nodeId) {
+        return this.jpaNodeRepository.findImmediateChildren(nodeId);
+    }
+
+    @Override
+    public List<T> findParentOf(ID id) {
+        return this.jpaNodeRepository.findParentOf(id);
     }
 }

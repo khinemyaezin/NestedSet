@@ -3,38 +3,38 @@ package com.coolstuff.core.nestedset.service;
 import com.coolstuff.core.nestedset.model.NodeComponent;
 import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-public class TreeBuilderImpl implements TreeBuilder {
+public abstract class AbstractTreeBuilder implements TreeBuilder {
     private final NodeComponentFactory nodeComponentFactory;
 
+    @Override
     public Optional<NodeComponent> buildTree(List<NodeComponent> nodeList) {
-        if (nodeList == null || nodeList.isEmpty()) {
-            return Optional.empty();
-        }
-
         NodeComponent root = nodeList.getFirst();
         NodeComponent node;
         if (root.getRgt() == root.getLft() + 1) {
             node = nodeComponentFactory.createLeafNodeComponent();
-            node.setId(root.getId());
-            node.setName(root.getName());
-            node.setLft(root.getLft());
-            node.setRgt(root.getRgt());
-            node.setDepth(root.getDepth());
+            this.merge(root,node);
             return Optional.of(node);
         } else {
             node = nodeComponentFactory.createCompositeNodeComponent();
-            node.setId(root.getId());
-            node.setName(root.getName());
-            node.setLft(root.getLft());
-            node.setRgt(root.getRgt());
-            node.setDepth(root.getDepth());
+            this.merge(root,node);
             return Optional.of(buildTreeRecursive(node, nodeList,0));
         }
+    }
+    @Override
+    public Optional<NodeComponent> buildTree(Collection<? extends NodeComponent> input) {
+        if (input == null || input.isEmpty()) {
+            return Optional.empty();
+        }
+
+        List<NodeComponent> nodeList = input.stream()
+                .sorted(Comparator.comparingInt(NodeComponent::getLft)) // Sorting by ascending lft
+                .collect(Collectors.toList());
+
+        return this.buildTree(nodeList);
     }
 
     private NodeComponent buildTreeRecursive(NodeComponent parent, List<NodeComponent> nodeList, int index) {
@@ -45,19 +45,10 @@ public class TreeBuilderImpl implements TreeBuilder {
                 NodeComponent node;
                 if (child.getRgt() == child.getLft() + 1) {
                     node = nodeComponentFactory.createLeafNodeComponent();
-                    node.setId(child.getId());
-                    node.setName(child.getName());
-                    node.setLft(child.getLft());
-                    node.setRgt(child.getRgt());
-                    node.setDepth(child.getDepth());
                 } else {
                     node = nodeComponentFactory.createCompositeNodeComponent();
-                    node.setId(child.getId());
-                    node.setName(child.getName());
-                    node.setLft(child.getLft());
-                    node.setRgt(child.getRgt());
-                    node.setDepth(child.getDepth());
                 }
+                this.merge(child,node);
                 node.setParent(parent);
                 parent.addSubNode(buildTreeRecursive(node, nodeList,i));
             }
@@ -65,7 +56,7 @@ public class TreeBuilderImpl implements TreeBuilder {
         }
         return parent;
     }
-
+    @Override
     public List<NodeComponent> getLeafList(NodeComponent node) {
         List<NodeComponent> leafNodes = new ArrayList<>();
 
@@ -83,4 +74,6 @@ public class TreeBuilderImpl implements TreeBuilder {
         }
         return leafNodes;
     }
+
+    public abstract void merge(NodeComponent source, NodeComponent target);
 }
